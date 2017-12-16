@@ -69,7 +69,7 @@ object Prune {
     * 
     */
   def buildFrom(rawData: List[RawDataRow]): Fix[AttrFCount] = {
-    Schemes.ana[AttrF[Counts, ?], Input ](rawData.map(treeHypothesis.extract) -> features)(build)
+    Schemes.ana[AttrF[Counts, ?], Input](rawData.map(treeHypothesis.extract) -> features)(build)
   }
 
 
@@ -197,6 +197,6 @@ object Prune {
   def prune(tree: Fix[AttrFCostInfo], validationRows: List[TestDataRow],
     validationLabels: Map[Int, Label]): Tree = {
     val subtrees = Schemes.ana[ListF[Fix[AttrFCostInfo], ?], Fix[AttrFCostInfo]](tree)(prunedSubtrees)
-    Schemes.cata[ListF[Fix[AttrFCostInfo], ?], (Double, Tree)](subtrees)(bestSubtree(tree, validationRows, validationLabels))._2
+    Schemes.cata(subtrees)(bestSubtree(tree, validationRows, validationLabels))._2
   }
 }

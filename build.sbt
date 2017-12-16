@@ -10,6 +10,7 @@ lazy val root = (project in file(".")).
       scalaVersion := "2.12.4-bin-typelevel-4"
     )),
     name := "titanic",
+    scalacOptions += "-Ypartial-unification",
     libraryDependencies ++= Seq(
       purecsv,
       schemes,
