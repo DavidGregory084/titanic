@@ -27,5 +27,5 @@ object AttrF {
     * Removes the tags from the tree
     * 
     */
-  def untag[A]: AttrF[A, Tree] => Tree = attr => Fix.fix(attr.tree)
+  def untag[A]: AttrF[A, Tree] => Tree = attr => Fix(attr.tree)
 }

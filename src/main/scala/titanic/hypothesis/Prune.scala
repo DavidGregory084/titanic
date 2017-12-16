@@ -3,6 +3,7 @@ package hypothesis
 
 import cats._, implicits._
 import schemes._
+import schemes.data._
 
 import titanic.model._
 import titanic.assessment._
@@ -95,11 +96,11 @@ object Prune {
   def tagCostInfoAlgebra: AttrF[Counts, Fix[AttrFCostInfo]] => Fix[AttrFCostInfo] =
     t => t match {
       case AttrF(labels, t: Leaf[Fix[AttrFCostInfo]]) =>
-        Fix.fix[AttrF[CostInfo, ?]](AttrF(leafCostInfo(labels), t))
+        Fix[AttrF[CostInfo, ?]](AttrF(leafCostInfo(labels), t))
       case AttrF(labels, t @ Node(_, children)) =>
         val childCostInfo = children.values.map(Fix.unfix(_).a).toList
         val attr = AttrF(parentCostInfo(labels, childCostInfo), t)
-        Fix.fix[AttrF[CostInfo, ?]](attr)
+        Fix[AttrF[CostInfo, ?]](attr)
     }
 
   /**
@@ -142,14 +143,14 @@ object Prune {
     */
   def prune(value: Double): AttrF[CostInfo, Fix[AttrFCostInfo]] => Fix[AttrFCostInfo] = {
     case  attr @ AttrF(c, Leaf(l)) =>
-      Fix.fix[AttrF[CostInfo, ?]](attr)
+      Fix[AttrF[CostInfo, ?]](attr)
     case AttrF(c, n @ Node(_, children)) =>
       if(c.cost <= value) {
         val nextInfo = leafCostInfo(c.labels)
-        Fix.fix[AttrF[CostInfo, ?]](AttrF(nextInfo, Leaf(c.labels.maxBy(_._2)._1)))
+        Fix[AttrF[CostInfo, ?]](AttrF(nextInfo, Leaf(c.labels.maxBy(_._2)._1)))
       } else {
-        Fix.fix[AttrF[CostInfo, ?]](AttrF(
-          parentCostInfo(c.labels, children.values.map(Fix.unfix(_).a).toList), n)
+        Fix[AttrF[CostInfo, ?]](AttrF(
+          parentCostInfo(c.labels, children.values.map(_.unfix.a).toList), n)
         )
       }
   }

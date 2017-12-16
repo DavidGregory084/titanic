@@ -2,6 +2,7 @@ package titanic
 
 import cats._, implicits._
 import schemes._
+import schemes.data._
 
 import titanic.model._
 
@@ -9,12 +10,6 @@ package object hypothesis extends EveryoneDiesHypothesis
     with FemalesSurviveHypothesis {
 
   type Tree = Fix[TreeF]
-  object Tree {
-    def leaf[A](label: Label): Tree =
-      Fix.fix[TreeF](Leaf(label))
-    def node[A](feature: Feature[Example], children: Map[String, Tree]): Tree =
-      Fix.fix[TreeF](Node(feature, children))
-  }
 
   implicit def treeHypothesis: Hypothesis.Aux[Tree, Example] =
     new Hypothesis[Tree] {
