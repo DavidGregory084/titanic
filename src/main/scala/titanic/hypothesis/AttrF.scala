@@ -1,8 +1,8 @@
 package titanic
 package hypothesis
 
-import scalaz._, Scalaz._
-import matryoshka.data._
+import cats._, implicits._
+import schemes._
 
 /**
   * Tags each node and leaf of the tree with an attribute a

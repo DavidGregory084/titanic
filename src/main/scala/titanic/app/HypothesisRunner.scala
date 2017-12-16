@@ -3,8 +3,7 @@ package app
 
 import purecsv.unsafe._
 
-import matryoshka.implicits._
-import matryoshka.data._
+import schemes._
 
 import titanic.assessment._
 import titanic.model._
@@ -24,8 +23,7 @@ object HypothesisRunner {
       Config.trainingFileName, skipHeader = false)
 
     // Build a greedy decision tree
-    val greedyTree = (trainingRows.map(treeHypothesis.extract) -> features)
-      .ana.apply[Tree].apply[TreeF](TreeF.build)
+    val greedyTree = Schemes.ana(trainingRows.map(treeHypothesis.extract) -> features)(TreeF.build)
 
     // Split the data into a training and validation set
     val treeTrainingRows = trainingRows.take(Config.trainingSize)
@@ -33,9 +31,8 @@ object HypothesisRunner {
     val actualValidationLabels = treeValidationRows.map(r => r.passengerId -> r.label).toMap
 
     // Build a tagged greedy decision tree
-    val taggedTree = (treeTrainingRows.map(treeHypothesis.extract)
-        -> features).hylo[AttrFCount, Fix[AttrFCostInfo]](
-        Prune.tagCostInfoAlgebra, Prune.build)
+    val taggedTree = Schemes.hylo[AttrF[Map[Label, Int], ?], Input, Fix[AttrFCostInfo]](treeTrainingRows.map(treeHypothesis.extract) -> features)(
+      Prune.build, Prune.tagCostInfoAlgebra)
 
     // Prune the trees to create a series of subtrees
     val prunedTree = Prune.prune(taggedTree,

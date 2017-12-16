@@ -10,9 +10,10 @@ lazy val root = (project in file(".")).
       scalaVersion := "2.12.4-bin-typelevel-4"
     )),
     name := "titanic",
+    scalacOptions += "-Ypartial-unification",
     libraryDependencies ++= Seq(
       purecsv,
-      matryoshka,
+      schemes,
       scalaTest % Test
     ),
     addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.3"),
