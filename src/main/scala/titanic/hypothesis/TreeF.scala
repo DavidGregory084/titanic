@@ -3,9 +3,8 @@ package hypothesis
 
 import scala.math.log
 
-import scalaz.Functor
-import matryoshka._
-import matryoshka.implicits._
+import cats.Functor
+import schemes._
 
 
 import titanic.model._
@@ -81,7 +80,7 @@ object TreeF {
     * This finds the feature with the maximum gain, and creates a node for that feature.
     * Construction terminates when there are no more features, or there is no more gain.
     */
-  val build: Coalgebra[TreeF, Input] = {
+  val build: Input => TreeF[Input] = {
     case (examples, features) =>
 
       // There are no more features.  Create a leaf with the most common label
@@ -114,19 +113,19 @@ object TreeF {
     * 
     */
   def buildFrom(rawData: List[RawDataRow]): Tree =
-    (rawData.map(treeHypothesis.extract) -> features).ana[Tree](TreeF.build)
+    Schemes.ana(rawData.map(treeHypothesis.extract) -> features)(TreeF.build)
 
 
   /** Coalgebra for building the path to a label for a passenger */
-  def explore(example: Example): Coalgebra[Label Either ? , Tree] = fix =>
-  fix.unFix match {
+  def explore(example: Example): Tree => Label Either Tree = fix =>
+  Fix.unfix(fix) match {
     case Leaf(label) => Left(label)
     case Node(feature, children) =>
       children.get(feature(example)).toRight(Label.Died)
   }
 
   /** Algebra to count the leaves in a tree */
-  val countLeaves: Algebra[TreeF, Int] = {
+  val countLeaves: TreeF[Int] => Int = {
     case Leaf(_) => 1
     case Node(_, children) => children.values.sum
   }

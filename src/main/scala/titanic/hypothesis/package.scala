@@ -1,9 +1,7 @@
 package titanic
 
-import matryoshka.data.Fix
-import matryoshka.patterns.ListF
-import matryoshka.implicits._
-import scalaz._, Scalaz._
+import cats._, implicits._
+import schemes._
 
 import titanic.model._
 
@@ -11,6 +9,12 @@ package object hypothesis extends EveryoneDiesHypothesis
     with FemalesSurviveHypothesis {
 
   type Tree = Fix[TreeF]
+  object Tree {
+    def leaf[A](label: Label): Tree =
+      Fix.fix[TreeF](Leaf(label))
+    def node[A](feature: Feature[Example], children: Map[String, Tree]): Tree =
+      Fix.fix[TreeF](Node(feature, children))
+  }
 
   implicit def treeHypothesis: Hypothesis.Aux[Tree, Example] =
     new Hypothesis[Tree] {
@@ -27,7 +31,7 @@ package object hypothesis extends EveryoneDiesHypothesis
       )
 
       def predict(tree: Tree)(example: Example): Label =
-        tree.hylo[Label Either ?, Label](_.merge, TreeF.explore(example))
+        Schemes.hylo[Label Either ?, Tree, Label](tree)(TreeF.explore(example), _.merge)
     }
 
   type Counts = Map[Label, Int]

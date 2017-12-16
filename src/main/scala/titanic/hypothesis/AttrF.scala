@@ -1,8 +1,8 @@
 package titanic
 package hypothesis
 
-import scalaz._, Scalaz._
-import matryoshka.data._
+import cats._, implicits._
+import schemes._
 
 /**
   * Tags each node and leaf of the tree with an attribute a
@@ -27,5 +27,5 @@ object AttrF {
     * Removes the tags from the tree
     * 
     */
-  def untag[A]: AttrF[A, Tree] => Tree = attr => Fix(attr.tree)
+  def untag[A]: AttrF[A, Tree] => Tree = attr => Fix.fix(attr.tree)
 }

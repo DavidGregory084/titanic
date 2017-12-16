@@ -12,7 +12,7 @@ lazy val root = (project in file(".")).
     name := "titanic",
     libraryDependencies ++= Seq(
       purecsv,
-      matryoshka,
+      schemes,
       scalaTest % Test
     ),
     addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.3"),
